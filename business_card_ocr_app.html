@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>VSC Tag Asset Uploader</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; background: #f7f9fc; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    input, textarea, button { width: 100%; padding: 0.5rem; margin-top: 0.3rem; border: 1px solid #ccc; border-radius: 6px; }
+    button { background-color: #007bff; color: white; cursor: pointer; margin-top: 1.5rem; }
+    button:hover { background-color: #0056b3; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>ส่งข้อมูลทรัพย์สินไปยัง n8n Webhook</h2>
+
+    <label>เลือกรูปภาพ (เช่น นามบัตร):</label>
+    <input type="file" id="imageInput" accept="image/*">
+
+    <label>รายละเอียด:</label>
+    <textarea id="detail" rows="2">เครื่องจักรบรรจุอัตโนมัติ</textarea>
+
+    <label>โลเคชั่น:</label>
+    <input type="text" id="location" value="โรงงาน A">
+
+    <label>ขั้นตอนการผลิต:</label>
+    <input type="text" id="process" value="การบรรจุ">
+
+    <button onclick="sendToWebhook()">ส่งข้อมูลไปยัง n8n</button>
+
+    <p id="status"></p>
+  </div>
+
+  <script>
+    async function sendToWebhook() {
+      const imageFile = document.getElementById("imageInput").files[0];
+      const detail = document.getElementById("detail").value;
+      const location = document.getElementById("location").value;
+      const process = document.getElementById("process").value;
+      const status = document.getElementById("status");
+
+      if (!imageFile) {
+        alert("กรุณาเลือกรูปภาพก่อน");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const base64Image = e.target.result;
+
+        const payload = {
+          image_base64: base64Image,
+          detail: detail,
+          location: location,
+          process: process
+        };
+
+        try {
+          await fetch("https://sanguan.app.n8n.cloud/webhook-test/tag-asset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          status.innerText = "✅ ส่งข้อมูลเรียบร้อยแล้ว!";
+        } catch (err) {
+          status.innerText = "❌ เกิดข้อผิดพลาดในการส่งข้อมูล";
+        }
+      };
+
+      reader.readAsDataURL(imageFile);
+    }
+  </script>
+</body>
+</html>

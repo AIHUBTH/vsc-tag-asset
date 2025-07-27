@@ -17,7 +17,18 @@
     <h2>ส่งข้อมูลทรัพย์สินไปยัง n8n Webhook</h2>
 
     <label>เลือกรูปภาพ (เช่น นามบัตร):</label>
-    <input type="file" id="imageInput" accept="image/*">
+    <div class="upload-area" id="uploadArea">
+  <label for="imageInput">
+    <div class="upload-box">
+      <img src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png" width="60">
+      <p><strong>ถ่ายรูป หรือ คลิกเพื่ออัปโหลด</strong></p>
+      <p class="subtext">PNG, JPG, GIF (ขนาดไม่เกิน 10MB)</p>
+    </div>
+  </label>
+  <input type="file" id="imageInput" accept="image/*" capture="environment" style="display: none" />
+</div>
+<canvas id="preview" style="display:none;"></canvas>
+
 
     <label>รายละเอียด:</label>
     <textarea id="detail" rows="2">เครื่องจักรบรรจุอัตโนมัติ</textarea>

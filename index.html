@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ส่งข้อมูลทรัพย์สินไปยัง n8n</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
+    input, textarea, button { width: 100%; margin-bottom: 1rem; padding: 0.5rem; }
+    .status { margin-top: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>ส่งข้อมูลทรัพย์สินไปยัง n8n Webhook</h2>
+  <p>เลือกภาพ (เช่น รูปเครื่องจักร):</p>
+  <input type="file" id="imageInput" accept="image/*" />
+
+  <textarea id="detail" placeholder="รายละเอียด"></textarea>
+  <input type="text" id="location" placeholder="โลเคชัน" />
+  <input type="text" id="process" placeholder="ขั้นตอนการผลิต" />
+  <button onclick="sendToWebhook()">ส่งข้อมูลไปยัง n8n</button>
+
+  <div class="status" id="status"></div>
+  <img id="preview" style="max-width:100%; display:none;" />
+
+  <script>
+    function sendToWebhook() {
+      const imageFile = document.getElementById("imageInput").files[0];
+      const detail = document.getElementById("detail").value;
+      const location = document.getElementById("location").value;
+      const process = document.getElementById("process").value;
+      const status = document.getElementById("status");
+
+      if (!imageFile) {
+        status.textContent = "กรุณาเลือกรูปภาพก่อน";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function (e) {
+        const base64Image = e.target.result;
+        document.getElementById("preview").src = base64Image;
+        document.getElementById("preview").style.display = "block";
+
+        const payload = { image_base64: base64Image, detail, location, process };
+
+        try {
+          const res = await fetch("https://sanguan.app.n8n.cloud/webhook/vsc-tag-asset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (res.ok) {
+            status.textContent = "✅ ส่งข้อมูลสำเร็จ!";
+          } else {
+            status.textContent = "❌ ส่งข้อมูลไม่สำเร็จ: " + res.statusText;
+          }
+        } catch (err) {
+          status.textContent = "❌ ข้อผิดพลาด: " + err.message;
+        }
+      };
+
+      reader.readAsDataURL(imageFile);
+    }
+  </script>
+</body>
+</html>
